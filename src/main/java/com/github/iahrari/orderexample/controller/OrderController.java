@@ -5,7 +5,6 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.github.iahrari.orderexample.dto.OrderDTO;
-import com.github.iahrari.orderexample.repository.OrderRepository;
 import com.github.iahrari.orderexample.service.OrderService;
 
 import org.springframework.web.bind.MethodArgumentNotValidException;
