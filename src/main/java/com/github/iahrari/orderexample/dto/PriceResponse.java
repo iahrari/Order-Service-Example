@@ -12,6 +12,6 @@ public class PriceResponse {
     private String destination;
     private Double price;
 
-    private List<String> fields;
-    private List<String> values;
+    private List<String> field;
+    private List<String> value;
 }

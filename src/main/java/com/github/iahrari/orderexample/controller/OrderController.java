@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.github.iahrari.orderexample.dto.OrderDTO;
 import com.github.iahrari.orderexample.service.OrderService;
 
@@ -24,7 +26,7 @@ public class OrderController {
     
     @PostMapping
     public OrderDTO addOrder(@Valid @RequestBody OrderDTO orderDTO) 
-            throws MethodArgumentNotValidException{
+            throws MethodArgumentNotValidException, JsonMappingException, JsonProcessingException{
         return orderService.saveOrder(orderDTO);
     }
 
