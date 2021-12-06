@@ -5,12 +5,12 @@ import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.iahrari.orderexample.domain.Order;
 import com.github.iahrari.orderexample.dto.OrderDTO;
 import com.github.iahrari.orderexample.dto.PriceResponse;
-import com.github.iahrari.orderexample.dto.converter.DtoToOrder;
-import com.github.iahrari.orderexample.dto.converter.OrderToDTO;
 import com.github.iahrari.orderexample.repository.OrderRepository;
 
+import org.springframework.core.convert.ConversionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -25,9 +25,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
+    private final ConversionService conversion;
     private final RestTemplate restTemplate;
-    private final DtoToOrder dtoToOrder;
-    private final OrderToDTO orderToDTO;
     private final ObjectMapper mapper;
     
     @Override
@@ -40,9 +39,9 @@ public class OrderServiceImpl implements OrderService {
                 "http://localhost:8081/price?source={source}&destination={destination}", 
                 PriceResponse.class, orderDTO.getSource(), orderDTO.getDestination());
 
-            var order = dtoToOrder.convert(orderDTO);
+            var order = conversion.convert(orderDTO, Order.class);
             order.setPrice(entity.getBody().getPrice());
-            return orderToDTO.convert(orderRepository.save(order));
+            return conversion.convert(orderRepository.save(order), OrderDTO.class);
         } catch(HttpClientErrorException e){
             if(e.getStatusCode().value() == 400)
                 throw new MethodArgumentNotValidException(null, rejectValue(e, orderDTO));
@@ -68,7 +67,7 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDTO> getAllOrders(){
         return orderRepository.findAll()
                 .stream()
-                .map(orderToDTO::convert)
+                .map(o -> conversion.convert(o, OrderDTO.class))
                 .toList();
     }
     
