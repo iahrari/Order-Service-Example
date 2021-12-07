@@ -1,0 +1,9 @@
+{
+  "properties": [
+	    {
+		  "name": "pricing-service.url",
+		  "type": "java.lang.String",
+		  "description": "Define the URL of the Pricing Service this value is required"
+		}
+	]
+}
