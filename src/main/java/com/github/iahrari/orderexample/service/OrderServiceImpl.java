@@ -10,6 +10,7 @@ import com.github.iahrari.orderexample.dto.OrderDTO;
 import com.github.iahrari.orderexample.dto.PriceResponse;
 import com.github.iahrari.orderexample.repository.OrderRepository;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class OrderServiceImpl implements OrderService {
     private final ConversionService conversion;
     private final RestTemplate restTemplate;
     private final ObjectMapper mapper;
+
+    @Value("${pricing-service.url}")
+    private String pricingServiceUrl;
     
     @Override
     public OrderDTO saveOrder(OrderDTO orderDTO) 
@@ -36,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
         ResponseEntity<PriceResponse> entity = null;
         try {
             entity = restTemplate.getForEntity(
-                "http://localhost:8081/price?source={source}&destination={destination}", 
+                pricingServiceUrl +"/price?source={source}&destination={destination}", 
                 PriceResponse.class, orderDTO.getSource(), orderDTO.getDestination());
 
             var order = conversion.convert(orderDTO, Order.class);
