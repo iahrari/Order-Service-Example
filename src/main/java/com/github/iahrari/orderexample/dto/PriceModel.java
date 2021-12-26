@@ -2,16 +2,17 @@ package com.github.iahrari.orderexample.dto;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class PriceResponse {
+@Builder
+@AllArgsConstructor
+public class PriceModel {
     private String source;
     private String destination;
     private Double price;
-
-    private List<String> field;
-    private List<String> value;
 }
