@@ -12,6 +12,7 @@ import com.github.iahrari.orderexample.exception.OrderException;
 import com.github.iahrari.orderexample.exception.PriceResponseException;
 import com.github.iahrari.orderexample.mapper.OrderMapper;
 import com.github.iahrari.orderexample.repository.OrderRepository;
+import com.github.iahrari.orderexample.utils.IdGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +39,7 @@ public class OrderServiceImpl implements OrderService {
 
         log.debug("Request to insert a new order {}", orderDTO);
         Order orderEntity = orderMapper.toEntity(orderDTO);
-
+        orderEntity.setHashId(IdGenerator.generateId());
         var price = getPrice(orderDTO.getSource(), orderDTO.getDestination());
         orderEntity.setPrice(BigDecimal.valueOf(price));
         Order savedOrder = orderRepository.save(orderEntity);
