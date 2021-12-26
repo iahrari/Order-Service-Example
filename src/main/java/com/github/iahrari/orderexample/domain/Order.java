@@ -10,6 +10,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+
 @Document
 @Data
 @Builder
@@ -19,9 +22,12 @@ public class Order {
     @Id
     @Builder.Default
     private Long hashId = IdGenerator.generateId();
-
+    @NotNull
     private String source;
+    @NotNull
     private String destination;
-    private Double price;
+    @NotNull
+    private BigDecimal price;
+    @NotNull
     private OrderType type;
 }

@@ -1,78 +1,77 @@
 package com.github.iahrari.orderexample.service;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.iahrari.orderexample.domain.Order;
 import com.github.iahrari.orderexample.dto.OrderDTO;
 import com.github.iahrari.orderexample.dto.PriceResponse;
+import com.github.iahrari.orderexample.exception.OrderException;
+import com.github.iahrari.orderexample.exception.PriceResponseException;
+import com.github.iahrari.orderexample.mapper.OrderMapper;
 import com.github.iahrari.orderexample.repository.OrderRepository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
+
     private final OrderRepository orderRepository;
-    private final ConversionService conversion;
     private final RestTemplate restTemplate;
-    private final ObjectMapper mapper;
+    private final OrderMapper orderMapper;
 
     @Value("${pricing-service.url}")
     private String pricingServiceUrl;
-    
+
     @Override
-    public OrderDTO saveOrder(OrderDTO orderDTO) 
-            throws MethodArgumentNotValidException, JsonMappingException, JsonProcessingException {
+    public OrderDTO saveOrder(OrderDTO orderDTO) {
 
-        ResponseEntity<PriceResponse> entity = null;
+        log.debug("Request to insert a new order {}", orderDTO);
+        Order orderEntity = orderMapper.toEntity(orderDTO);
+
+        var price = getPrice(orderDTO.getSource(), orderDTO.getDestination());
+        orderEntity.setPrice(BigDecimal.valueOf(price));
+        Order savedOrder = orderRepository.save(orderEntity);
+        return orderMapper.toDTO(savedOrder);
+    }
+
+    @Override
+    public List<OrderDTO> getAllOrders() {
+        return orderRepository.findAll()
+                .stream()
+                .map(orderMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public OrderDTO getOrder(Long id) {
+        return orderRepository.findById(id)
+                .map(orderMapper::toDTO)
+                .orElseThrow(() -> new OrderException("Order not found"));
+    }
+
+    private Double getPrice(String source, String destination) {
         try {
-            entity = restTemplate.getForEntity(
-                pricingServiceUrl +"/price?source={source}&destination={destination}", 
-                PriceResponse.class, orderDTO.getSource(), orderDTO.getDestination());
+            var priceResponse = restTemplate.getForEntity(
+                    pricingServiceUrl + "/price?source={source}&destination={destination}",
+                    PriceResponse.class, source, destination);
 
-            var order = conversion.convert(orderDTO, Order.class);
-            order.setPrice(entity.getBody().getPrice());
-            return conversion.convert(orderRepository.save(order), OrderDTO.class);
-        } catch(HttpClientErrorException e){
-            if(e.getStatusCode().value() == 400)
-                throw new MethodArgumentNotValidException(null, rejectValue(e, orderDTO));
-
-            throw e;
+            return Optional.ofNullable(priceResponse.getBody())
+                    .map(PriceResponse::getPrice)
+                    .orElseThrow(() -> new PriceResponseException("Body is null"));
+        } catch (HttpClientErrorException e) {
+            throw new PriceResponseException(String.format("Pricing service error code %d", e.getStatusCode().value()));
         }
     }
 
-    private BindingResult rejectValue(HttpClientErrorException e, OrderDTO orderDTO) 
-            throws JsonMappingException, JsonProcessingException {
-        var body = mapper.readValue(e.getResponseBodyAsString(), PriceResponse.class);
-        var bindingResult = new BeanPropertyBindingResult(orderDTO, "order");
-        var valueIterator = body.getValue().iterator();
-        body.getField().forEach(field -> {
-            var value = valueIterator.next();
-            bindingResult.rejectValue(field, value, value + " is not a valid value");
-        });
-
-        return bindingResult;
-    }
-
-    @Override
-    public List<OrderDTO> getAllOrders(){
-        return orderRepository.findAll()
-                .stream()
-                .map(o -> conversion.convert(o, OrderDTO.class))
-                .toList();
-    }
-    
 }

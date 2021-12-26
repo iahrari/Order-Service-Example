@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -21,7 +23,7 @@ public class OrderDTO {
     private String source;
     @NotBlank
     private String destination;
-    private Double price;
+    private BigDecimal price;
 
     @NotNull
     private OrderType type;
