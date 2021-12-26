@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.github.iahrari.orderexample.domain.Order;
 import com.github.iahrari.orderexample.dto.OrderDTO;
-import com.github.iahrari.orderexample.dto.PriceResponse;
+import com.github.iahrari.orderexample.dto.PriceModel;
 import com.github.iahrari.orderexample.exception.OrderException;
 import com.github.iahrari.orderexample.exception.PriceResponseException;
 import com.github.iahrari.orderexample.mapper.OrderMapper;
@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
+    private final static String PRICE_ENDPOINT = "/api/v1/price";
 
     private final OrderRepository orderRepository;
     private final RestTemplate restTemplate;
@@ -62,13 +63,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Double getPrice(String source, String destination) {
+        var price = PriceModel.builder()
+                .source(source)
+                .destination(destination)
+                .build();
         try {
-            var priceResponse = restTemplate.getForEntity(
-                    pricingServiceUrl + "/price?source={source}&destination={destination}",
-                    PriceResponse.class, source, destination);
+            var priceResponse = restTemplate.postForEntity(
+                    pricingServiceUrl + PRICE_ENDPOINT, price,
+                    PriceModel.class);
 
             return Optional.ofNullable(priceResponse.getBody())
-                    .map(PriceResponse::getPrice)
+                    .map(PriceModel::getPrice)
                     .orElseThrow(() -> new PriceResponseException("Body is null"));
         } catch (HttpClientErrorException e) {
             throw new PriceResponseException(String.format("Pricing service error code %d", e.getStatusCode().value()));
