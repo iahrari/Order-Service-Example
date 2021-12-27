@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "d25b341c-6f23-46d6-b47a-6851d5cf1908",
+		"_postman_id": "fa9fc827-918c-4c5e-98ae-7b41fde4e7ed",
 		"name": "OrderServiceCollection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -65,6 +65,15 @@
 						"order"
 					]
 				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get specific order",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": null
 			},
 			"response": []
 		}
