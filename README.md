@@ -14,13 +14,42 @@ You can simply run this project with Intelij Idea or with Spring boot extension 
 ```
 
 ## Requests
+
+***Get specific order***
+----
+  Returns all saved orders
+
+* **URL**
+
+  /api/v1/order/{hashId}
+
+* **Method:**
+
+  `GET`
+
+* **Data Params**
+
+  * **hashId:** is a long unique id of order.
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```
+      { 
+          "hashId : "Long Id", 
+          "source" : "String", 
+          "destination": "String", 
+          "price": "decimal number" 
+      }
+    ```
 ***Get all orders***
 ----
   Returns all saved orders
 
 * **URL**
 
-  /orders/
+  /api/v1/order/
 
 * **Method:**
 
@@ -40,13 +69,23 @@ You can simply run this project with Intelij Idea or with Spring boot extension 
         }
     ]
     ```
+* **Error Response:**
+
+  * **Code:** 404 <br />
+    **Content:** 
+    ```
+    { 
+        "message": "String detail"
+    }
+    ```
+    
 ***Add Order***
 ----
   Save a order in service and get price
 
 * **URL**
 
-  /orders/
+  /api/v1/order/
 
 * **Method:**
 

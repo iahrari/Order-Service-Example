@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.github.iahrari.orderexample.dto.ResponseError;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +18,15 @@ public class GeneralExceptionHandler {
     @ExceptionHandler(PriceResponseException.class)
     public ResponseEntity<ResponseError> handlePricingServiceErrors(PriceResponseException ex){
         return ResponseEntity.badRequest()
+                .body(ResponseError.builder()
+                        .message(ex.getMessage())
+                        .build()
+                );
+    }
+
+    @ExceptionHandler(OrderException.class)
+    public ResponseEntity<ResponseError> handleOrderNotFound(OrderException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ResponseError.builder()
                         .message(ex.getMessage())
                         .build()
