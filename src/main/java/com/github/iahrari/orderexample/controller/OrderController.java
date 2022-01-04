@@ -7,7 +7,6 @@ import javax.validation.Valid;
 import com.github.iahrari.orderexample.dto.OrderDTO;
 import com.github.iahrari.orderexample.service.OrderService;
 
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
