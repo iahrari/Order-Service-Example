@@ -4,25 +4,23 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Jwts;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-@ConfigurationProperties(prefix = "application.jwt")
 @RequiredArgsConstructor
 public class JwtTokenUtil {
     private final SecretKey secretKey;
-    @Getter @Setter
+    @Getter @Value("${application.jwt.jwtIssuer}")
     private String jwtIssuer = "order-example";
-    @Getter @Setter
+    @Getter @Value("${application.jwt.tokenExpirationAfterDays}")
     private Integer tokenExpirationAfterDays = 7;
 
     public String generateAccessToken(UserDetails user) {
