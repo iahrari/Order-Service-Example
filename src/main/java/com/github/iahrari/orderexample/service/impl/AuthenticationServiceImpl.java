@@ -1,9 +1,11 @@
-package com.github.iahrari.orderexample.service;
+package com.github.iahrari.orderexample.service.impl;
 
 import com.github.iahrari.orderexample.config.jwt.JwtTokenUtil;
+import com.github.iahrari.orderexample.dto.AuthResponse;
 import com.github.iahrari.orderexample.dto.UserDTO;
 import com.github.iahrari.orderexample.exception.UserAuthenticationException;
 
+import com.github.iahrari.orderexample.service.AuthenticationService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,12 +17,12 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationServiceImpl implements AuthenticationService{
+public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtil jwtTokenUtil;
 
     @Override
-    public String authenticate(UserDTO userDTO) {
+    public AuthResponse authenticate(UserDTO userDTO) {
         try {
             Authentication authenticate = authenticationManager
                 .authenticate(
@@ -29,8 +31,10 @@ public class AuthenticationServiceImpl implements AuthenticationService{
                     )
                 );
 
-            User user = (User) authenticate.getPrincipal();
-            return jwtTokenUtil.generateAccessToken(user);
+            var user = (User) authenticate.getPrincipal();
+            return AuthResponse.builder()
+                    .token(jwtTokenUtil.generateAccessToken(user))
+                    .build();
         } catch (BadCredentialsException ex) {
             throw new UserAuthenticationException("Bad credentials");
         }

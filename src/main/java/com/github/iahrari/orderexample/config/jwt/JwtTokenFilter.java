@@ -24,7 +24,7 @@ import static java.util.Optional.ofNullable;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
-    private final UserDetailsService uDetailsService;
+    private final UserDetailsService userDetailsService;
     private final JwtTokenUtil jwtTokenUtil;
 
     @Override
@@ -46,7 +46,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
         // Get user identity and set it on the spring security context
-        UserDetails userDetails = uDetailsService
+        UserDetails userDetails = userDetailsService
                 .loadUserByUsername(jwtTokenUtil.getUsername(token));
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

@@ -13,8 +13,9 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class JwtSecretKey {
-    @Getter @Value("${application.jwt.secretKey}")
-    private String secretKey = "securesecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecure";
+    @Getter
+    @Value("${application.jwt.secretKey}")
+    private String secretKey;
 
     @Bean
     public SecretKey secretKey(){

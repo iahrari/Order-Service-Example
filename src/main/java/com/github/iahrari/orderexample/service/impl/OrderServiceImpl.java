@@ -1,4 +1,4 @@
-package com.github.iahrari.orderexample.service;
+package com.github.iahrari.orderexample.service.impl;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -7,11 +7,12 @@ import java.util.stream.Collectors;
 
 import com.github.iahrari.orderexample.domain.Order;
 import com.github.iahrari.orderexample.dto.OrderDTO;
-import com.github.iahrari.orderexample.dto.PriceModel;
+import com.github.iahrari.orderexample.dto.PriceModelDTO;
 import com.github.iahrari.orderexample.exception.OrderException;
 import com.github.iahrari.orderexample.exception.PriceResponseException;
 import com.github.iahrari.orderexample.mapper.OrderMapper;
 import com.github.iahrari.orderexample.repository.OrderRepository;
+import com.github.iahrari.orderexample.service.OrderService;
 import com.github.iahrari.orderexample.utils.IdGenerator;
 
 import lombok.extern.slf4j.Slf4j;
@@ -63,17 +64,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Double getPrice(String source, String destination) {
-        var price = PriceModel.builder()
+        var price = PriceModelDTO.builder()
                 .source(source)
                 .destination(destination)
                 .build();
         try {
             var priceResponse = restTemplate.postForEntity(
                     pricingServiceUrl + PRICE_ENDPOINT, price,
-                    PriceModel.class);
+                    PriceModelDTO.class);
 
             return Optional.ofNullable(priceResponse.getBody())
-                    .map(PriceModel::getPrice)
+                    .map(PriceModelDTO::getPrice)
                     .orElseThrow(() -> new PriceResponseException("Body is null"));
         } catch (HttpClientErrorException e) {
             throw new PriceResponseException(String.format("Pricing service error code %d", e.getStatusCode().value()));

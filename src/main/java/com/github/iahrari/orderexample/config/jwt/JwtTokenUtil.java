@@ -18,9 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class JwtTokenUtil {
     private final SecretKey secretKey;
-    @Getter @Value("${application.jwt.jwtIssuer}")
+    @Getter
+    @Value("${application.jwt.jwtIssuer}")
     private String jwtIssuer = "order-example";
-    @Getter @Value("${application.jwt.tokenExpirationAfterDays}")
+    @Getter
+    @Value("${application.jwt.tokenExpirationAfterDays}")
     private Integer tokenExpirationAfterDays = 7;
 
     public String generateAccessToken(UserDetails user) {

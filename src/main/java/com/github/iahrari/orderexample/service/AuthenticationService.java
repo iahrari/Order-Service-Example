@@ -1,7 +1,8 @@
 package com.github.iahrari.orderexample.service;
 
+import com.github.iahrari.orderexample.dto.AuthResponse;
 import com.github.iahrari.orderexample.dto.UserDTO;
 
 public interface AuthenticationService {
-    String authenticate(UserDTO userDTO);
+    AuthResponse authenticate(UserDTO userDTO);
 }
