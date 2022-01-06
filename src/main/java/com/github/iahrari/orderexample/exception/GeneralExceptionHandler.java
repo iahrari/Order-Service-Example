@@ -24,6 +24,15 @@ public class GeneralExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(UserAuthenticationException.class)
+    public ResponseEntity<ResponseError> handleUserAuthenticationErrors(UserAuthenticationException ex){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ResponseError.builder()
+                        .message(ex.getMessage())
+                        .build()
+                );
+    }
+
     @ExceptionHandler(OrderException.class)
     public ResponseEntity<ResponseError> handleOrderNotFound(OrderException ex){
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

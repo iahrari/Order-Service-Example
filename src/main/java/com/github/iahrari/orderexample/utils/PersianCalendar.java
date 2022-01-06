@@ -8,12 +8,12 @@ import lombok.Data;
 @Data
 public class PersianCalendar {
     
-    public String strWeekDay = "";
-    public String strMonth = "";
+    private String strWeekDay = "";
+    private String strMonth = "";
 
-    int date;
-    int month;
-    int year;
+    private int date;
+    private int month;
+    private int year;
 
     public PersianCalendar(){
         Calendar georgian = Calendar.getInstance();

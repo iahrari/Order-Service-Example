@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiImplicitParam;
 import lombok.RequiredArgsConstructor;
 
 @Slf4j
@@ -27,6 +28,12 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    @ApiImplicitParam(
+            name = "Authorization",
+            value = "Access Token",
+            required = true,
+            paramType = "header",
+            example = "Bearer access_token")
     @PostMapping
     public ResponseEntity<OrderDTO> addOrder(@Valid @RequestBody OrderDTO orderDTO) {
         log.debug("HTTP request to save a new order : {}", orderDTO);
@@ -35,11 +42,23 @@ public class OrderController {
                 .body(orderService.saveOrder(orderDTO));
     }
 
+    @ApiImplicitParam(
+            name = "Authorization",
+            value = "Access Token",
+            required = true,
+            paramType = "header",
+            example = "Bearer access_token")
     @GetMapping
     public List<OrderDTO> getAll() {
         return orderService.getAllOrders();
     }
 
+    @ApiImplicitParam(
+            name = "Authorization",
+            value = "Access Token",
+            required = true,
+            paramType = "header",
+            example = "Bearer access_token")
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrder(@PathVariable Long id){
         return ResponseEntity.ok(orderService.getOrder(id));
