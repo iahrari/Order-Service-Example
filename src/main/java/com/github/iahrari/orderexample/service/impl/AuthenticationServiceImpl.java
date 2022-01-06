@@ -2,7 +2,7 @@ package com.github.iahrari.orderexample.service.impl;
 
 import com.github.iahrari.orderexample.config.jwt.JwtTokenUtil;
 import com.github.iahrari.orderexample.dto.AuthResponse;
-import com.github.iahrari.orderexample.dto.UserDTO;
+import com.github.iahrari.orderexample.dto.AuthenticationUserDTO;
 import com.github.iahrari.orderexample.exception.UserAuthenticationException;
 
 import com.github.iahrari.orderexample.service.AuthenticationService;
@@ -22,7 +22,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtTokenUtil jwtTokenUtil;
 
     @Override
-    public AuthResponse authenticate(UserDTO userDTO) {
+    public AuthResponse authenticate(AuthenticationUserDTO userDTO) {
         try {
             Authentication authenticate = authenticationManager
                 .authenticate(

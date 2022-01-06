@@ -3,7 +3,7 @@ package com.github.iahrari.orderexample.controller;
 import javax.validation.Valid;
 
 import com.github.iahrari.orderexample.dto.AuthResponse;
-import com.github.iahrari.orderexample.dto.UserDTO;
+import com.github.iahrari.orderexample.dto.AuthenticationUserDTO;
 import com.github.iahrari.orderexample.service.AuthenticationService;
 
 import org.springframework.http.ResponseEntity;
@@ -34,7 +34,7 @@ public class AuthenticationController {
         }
     )
     @PostMapping
-    public ResponseEntity<AuthResponse> authorize(@RequestBody @Valid UserDTO user) {
+    public ResponseEntity<AuthResponse> authenticate(@RequestBody @Valid AuthenticationUserDTO user) {
         var token = authenticationService.authenticate(user);
         return ResponseEntity.ok().body(token);
     }
