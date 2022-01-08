@@ -42,6 +42,15 @@ public class GeneralExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(PriceServiceAuthenticationException.class)
+    public ResponseEntity<ResponseError> cantAuthenticateInPricingService(PriceServiceAuthenticationException ex){
+        return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY)
+                .body(ResponseError.builder()
+                        .message(ex.getMessage())
+                        .build()
+                );
+    }
+
     @ExceptionHandler(ResourceAccessException.class)
     public ResponseEntity<ResponseError> handleInternalServiceHttpCalls(ResourceAccessException ex){
         return ResponseEntity.badRequest()

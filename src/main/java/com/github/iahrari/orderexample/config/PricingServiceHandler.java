@@ -6,6 +6,7 @@ import com.github.iahrari.orderexample.dto.AuthResponse;
 import com.github.iahrari.orderexample.dto.AuthenticationUserDTO;
 import com.github.iahrari.orderexample.dto.PriceModelDTO;
 import com.github.iahrari.orderexample.exception.PriceResponseException;
+import com.github.iahrari.orderexample.exception.PriceServiceAuthenticationException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -55,8 +56,16 @@ public class PricingServiceHandler {
         }
     }
 
-    public Double getPrice(String source, String destination) {
-        var counter = 0;
+    public Double getPrice(String source, String destination){
+        try {
+            return getPriceFromService(source, destination);
+        } catch(PriceServiceAuthenticationException e){
+            authenticate();
+            return getPriceFromService(source, destination);
+        }
+    }
+
+    private Double getPriceFromService(String source, String destination) {
         var price = PriceModelDTO.builder()
                 .source(source)
                 .destination(destination)
@@ -65,26 +74,25 @@ public class PricingServiceHandler {
         var headers = new HttpHeaders();
         var entity = new HttpEntity<>(price, headers);
 
-        while(true){
-            headers.setBearerAuth(token);
-            try {
-                var priceResponse = restTemplate.postForEntity(
-                        pricingServiceUrl + PricingServiceHandler.PRICE_ENDPOINT, entity,
-                        PriceModelDTO.class);
+        headers.setBearerAuth(token);
 
-                return Optional.ofNullable(priceResponse.getBody())
-                        .map(PriceModelDTO::getPrice)
-                        .orElseThrow(() -> new PriceResponseException("Body is null"));
-            } catch (HttpClientErrorException e) {
-                if(e.getStatusCode().value() == 401 && counter++ == 0){
-                    authenticate();
-                } else 
-                    throw new PriceResponseException(
-                                String.format(
-                                    "Pricing service error code %d", 
-                                    e.getStatusCode().value()
-                                ));
-            }
+        try {
+            var priceResponse = restTemplate.postForEntity(
+                    pricingServiceUrl + PricingServiceHandler.PRICE_ENDPOINT, entity,
+                    PriceModelDTO.class);
+
+            return Optional.ofNullable(priceResponse.getBody())
+                    .map(PriceModelDTO::getPrice)
+                    .orElseThrow(() -> new PriceResponseException("Body is null"));
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode().value() == 401)
+                throw new PriceServiceAuthenticationException("Pricing service authentication error.");
+            else 
+                throw new PriceResponseException(
+                            String.format(
+                                "Pricing service error code %d", 
+                                e.getStatusCode().value()
+                            ));
         }
     }
 }
