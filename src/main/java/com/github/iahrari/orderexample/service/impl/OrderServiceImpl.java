@@ -2,14 +2,12 @@ package com.github.iahrari.orderexample.service.impl;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.github.iahrari.orderexample.config.PricingServiceHandler;
 import com.github.iahrari.orderexample.domain.Order;
 import com.github.iahrari.orderexample.dto.OrderDTO;
-import com.github.iahrari.orderexample.dto.PriceModelDTO;
 import com.github.iahrari.orderexample.exception.OrderException;
-import com.github.iahrari.orderexample.exception.PriceResponseException;
 import com.github.iahrari.orderexample.mapper.OrderMapper;
 import com.github.iahrari.orderexample.repository.OrderRepository;
 import com.github.iahrari.orderexample.service.OrderService;
@@ -18,8 +16,6 @@ import com.github.iahrari.orderexample.utils.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,10 +23,9 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
-    private final static String PRICE_ENDPOINT = "/api/v1/price";
 
+    private final PricingServiceHandler pricingServiceConfig;
     private final OrderRepository orderRepository;
-    private final RestTemplate restTemplate;
     private final OrderMapper orderMapper;
 
     @Value("${pricing-service.url}")
@@ -64,21 +59,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Double getPrice(String source, String destination) {
-        var price = PriceModelDTO.builder()
-                .source(source)
-                .destination(destination)
-                .build();
-        try {
-            var priceResponse = restTemplate.postForEntity(
-                    pricingServiceUrl + PRICE_ENDPOINT, price,
-                    PriceModelDTO.class);
-
-            return Optional.ofNullable(priceResponse.getBody())
-                    .map(PriceModelDTO::getPrice)
-                    .orElseThrow(() -> new PriceResponseException("Body is null"));
-        } catch (HttpClientErrorException e) {
-            throw new PriceResponseException(String.format("Pricing service error code %d", e.getStatusCode().value()));
-        }
+        return pricingServiceConfig.getPrice(source, destination);
     }
 
 }
